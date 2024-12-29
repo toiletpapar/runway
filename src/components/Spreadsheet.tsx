@@ -64,16 +64,16 @@ const Spreadsheet: React.FC = () => {
   return (
     <SpreadsheetContainer>
       <Heading marginBottom="2rem">Spreadsheet</Heading>
-      <Flex>
-        <Cell value="" />
-        {Array.from({length: NUM_COLUMNS}).fill(1).map((value, columnIdx) => (
-          <Cell
-            key={`clabel-${columnIdx}`}
-            value={(columnIdx + 1).toString()}
-          />
-        ))}
-      </Flex>
       <Sheet width="full">
+        <Flex>
+          <Cell value="" />
+          {Array.from({length: NUM_COLUMNS}).fill(1).map((value, columnIdx) => (
+            <Cell
+              key={`clabel-${columnIdx}`}
+              value={(columnIdx + 1).toString()}
+            />
+          ))}
+        </Flex>
         {spreadsheetState.map((row, rowIdx) => {
           return (
             <Flex key={String(rowIdx)}>
