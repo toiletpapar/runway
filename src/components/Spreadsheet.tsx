@@ -6,7 +6,7 @@ import Cell from 'components/Cell';
 import styled from '@emotion/styled';
 
 const NUM_ROWS = 20;
-const NUM_COLUMNS = 15;
+const NUM_COLUMNS = 20;
 const createRow = () => _.times(NUM_COLUMNS, _.constant(''))
 const blankSheet = _.times(NUM_ROWS, createRow)
 
@@ -29,6 +29,16 @@ const ButtonContainer = styled(Flex)`
 const SpreadsheetButton = styled(Button)`
   margin: 4px;
 `
+
+const columnToLetter = (columnIndex: number) => {
+  let columnLabel = "";
+  while (columnIndex >= 0) {
+    let remainder = columnIndex % 26;
+    columnLabel = String.fromCharCode(65 + remainder) + columnLabel;
+    columnIndex = Math.floor(columnIndex / 26) - 1;
+  }
+  return columnLabel;
+}
 
 const Spreadsheet: React.FC = () => {
   
@@ -70,7 +80,7 @@ const Spreadsheet: React.FC = () => {
           {Array.from({length: NUM_COLUMNS}).fill(1).map((value, columnIdx) => (
             <Cell
               key={`clabel-${columnIdx}`}
-              value={(columnIdx + 1).toString()}
+              value={columnToLetter(columnIdx)}
             />
           ))}
         </Flex>
