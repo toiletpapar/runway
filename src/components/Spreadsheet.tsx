@@ -35,7 +35,6 @@ const Spreadsheet: React.FC = () => {
   const [spreadsheetState, setSpreadsheetState] = useState(
     blankSheet,
   );
-  const [freezeTopRow, setFreezeTopRow] = useState<boolean>(false)
   const [activeCell, setActiveCell] = useState<number[] | null>(null)
 
   const handleCellChange = useCallback((rowIdx: number, columnIdx: number, newValue: string) => {
@@ -50,10 +49,6 @@ const Spreadsheet: React.FC = () => {
       ...spreadsheetState.slice(rowIdx + 1),
     ]);
   }, [setSpreadsheetState, spreadsheetState])
-
-  const toggleFreeze = useCallback(() => {
-    setFreezeTopRow(!freezeTopRow)
-  }, [setFreezeTopRow, freezeTopRow])
 
   const resetSheet = useCallback(() => {
     setSpreadsheetState(blankSheet)
@@ -71,24 +66,8 @@ const Spreadsheet: React.FC = () => {
           />
         ))}
       </Flex>
-      {
-        freezeTopRow && (
-          <Flex>
-            {spreadsheetState[0].map((cellValue, columnIdx) => (
-              <Cell
-                key={`fr-${columnIdx}`}
-                value={cellValue}
-                rowIndex={0}
-                columnIndex={columnIdx}
-                onCellClick={(rowIndex, columnIndex) => setActiveCell([rowIndex, columnIndex])}
-                onChange={activeCell !== null && activeCell[0] === 0 && activeCell[1] === columnIdx ? handleCellChange : undefined}
-              />
-            ))}
-          </Flex>
-        )
-      }
       <Sheet width="full">
-        {spreadsheetState.slice(freezeTopRow ? 1 : 0).map((row, rowIdx) => {
+        {spreadsheetState.map((row, rowIdx) => {
           return (
             <Flex key={String(rowIdx)}>
               <Cell key={`rlabel-${rowIdx}`} value={(rowIdx + 1).toString()} />
@@ -107,7 +86,6 @@ const Spreadsheet: React.FC = () => {
         })}
       </Sheet>
       <ButtonContainer>
-        <SpreadsheetButton onClick={toggleFreeze}>Freeze Top Row</SpreadsheetButton>
         <SpreadsheetButton onClick={resetSheet}>Reset Spreadsheet</SpreadsheetButton>
       </ButtonContainer>
     </SpreadsheetContainer>
