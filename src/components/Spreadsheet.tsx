@@ -1,44 +1,116 @@
-import { Box, Flex } from '@chakra-ui/react';
+import { Box, Button, Flex, Heading } from '@chakra-ui/react';
 import _ from 'lodash';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 
 import Cell from 'components/Cell';
+import styled from '@emotion/styled';
 
-const NUM_ROWS = 10;
+const NUM_ROWS = 20;
 const NUM_COLUMNS = 10;
+const createRow = () => _.times(NUM_COLUMNS, _.constant(''))
+const blankSheet = _.times(NUM_ROWS, createRow)
+
+const SpreadsheetContainer = styled(Box)`
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+`
+
+const Sheet = styled(Box)`
+  max-height: 80vh;
+  overflow-y: scroll;
+`
+
+const ButtonContainer = styled(Flex)`
+  margin: 4px 0px;
+  justify-content: end;
+`
+
+const SpreadsheetButton = styled(Button)`
+  margin: 4px;
+`
 
 const Spreadsheet: React.FC = () => {
+  
   const [spreadsheetState, setSpreadsheetState] = useState(
-    _.times(NUM_ROWS, () => _.times(NUM_COLUMNS, _.constant(''))),
+    blankSheet,
   );
+  const [freezeTopRow, setFreezeTopRow] = useState<boolean>(false)
+  const [activeCell, setActiveCell] = useState<number[] | null>(null)
+
+  const handleCellChange = useCallback((rowIdx: number, columnIdx: number, newValue: string) => {
+    const newRow = [
+      ...spreadsheetState[rowIdx].slice(0, columnIdx),
+      newValue,
+      ...spreadsheetState[rowIdx].slice(columnIdx + 1),
+    ];
+    setSpreadsheetState([
+      ...spreadsheetState.slice(0, rowIdx),
+      newRow,
+      ...spreadsheetState.slice(rowIdx + 1),
+    ]);
+  }, [setSpreadsheetState, spreadsheetState])
+
+  const toggleFreeze = useCallback(() => {
+    setFreezeTopRow(!freezeTopRow)
+  }, [setFreezeTopRow, freezeTopRow])
+
+  const resetSheet = useCallback(() => {
+    setSpreadsheetState(blankSheet)
+  }, [setSpreadsheetState])
 
   return (
-    <Box width="full">
-      {spreadsheetState.map((row, rowIdx) => {
-        return (
-          <Flex key={String(rowIdx)}>
-            {row.map((cellValue, columnIdx) => (
+    <SpreadsheetContainer>
+      <Heading marginBottom="2rem">Spreadsheet</Heading>
+      <Flex>
+        <Cell value="" />
+        {Array.from({length: NUM_COLUMNS}).fill(1).map((value, columnIdx) => (
+          <Cell
+            key={`clabel-${columnIdx}`}
+            value={(columnIdx + 1).toString()}
+          />
+        ))}
+      </Flex>
+      {
+        freezeTopRow && (
+          <Flex>
+            {spreadsheetState[0].map((cellValue, columnIdx) => (
               <Cell
-                key={`${rowIdx}/${columnIdx}`}
+                key={`fr-${columnIdx}`}
                 value={cellValue}
-                onChange={(newValue: string) => {
-                  const newRow = [
-                    ...spreadsheetState[rowIdx].slice(0, columnIdx),
-                    newValue,
-                    ...spreadsheetState[rowIdx].slice(columnIdx + 1),
-                  ];
-                  setSpreadsheetState([
-                    ...spreadsheetState.slice(0, rowIdx),
-                    newRow,
-                    ...spreadsheetState.slice(rowIdx + 1),
-                  ]);
-                }}
+                rowIndex={0}
+                columnIndex={columnIdx}
+                onCellClick={(rowIndex, columnIndex) => setActiveCell([rowIndex, columnIndex])}
+                onChange={activeCell !== null && activeCell[0] === 0 && activeCell[1] === columnIdx ? handleCellChange : undefined}
               />
             ))}
           </Flex>
-        );
-      })}
-    </Box>
+        )
+      }
+      <Sheet width="full">
+        {spreadsheetState.slice(freezeTopRow ? 1 : 0).map((row, rowIdx) => {
+          return (
+            <Flex key={String(rowIdx)}>
+              <Cell key={`rlabel-${rowIdx}`} value={(rowIdx + 1).toString()} />
+              {row.map((cellValue, columnIdx) => (
+                <Cell
+                  key={`${rowIdx}/${columnIdx}`}
+                  value={cellValue}
+                  rowIndex={rowIdx}
+                  columnIndex={columnIdx}
+                  onCellClick={(rowIndex, columnIndex) => setActiveCell([rowIndex, columnIndex])}
+                  onChange={activeCell !== null && activeCell[0] === rowIdx && activeCell[1] === columnIdx ? handleCellChange : undefined}
+                />
+              ))}
+            </Flex>
+          )
+        })}
+      </Sheet>
+      <ButtonContainer>
+        <SpreadsheetButton onClick={toggleFreeze}>Freeze Top Row</SpreadsheetButton>
+        <SpreadsheetButton onClick={resetSheet}>Reset Spreadsheet</SpreadsheetButton>
+      </ButtonContainer>
+    </SpreadsheetContainer>
   );
 };
 
