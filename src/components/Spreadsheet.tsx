@@ -6,7 +6,7 @@ import Cell from 'components/Cell';
 import styled from '@emotion/styled';
 
 const NUM_ROWS = 20;
-const NUM_COLUMNS = 10;
+const NUM_COLUMNS = 15;
 const createRow = () => _.times(NUM_COLUMNS, _.constant(''))
 const blankSheet = _.times(NUM_ROWS, createRow)
 
@@ -54,6 +54,13 @@ const Spreadsheet: React.FC = () => {
     setSpreadsheetState(blankSheet)
   }, [setSpreadsheetState])
 
+  const updateActiveCell = (rowIndex: number, columnIndex: number) => {
+    // Check moving to valid cell
+    if (rowIndex >= 0 && rowIndex < NUM_ROWS && columnIndex >= 0 && columnIndex < NUM_COLUMNS) {
+      setActiveCell([rowIndex, columnIndex])
+    }
+  }
+
   return (
     <SpreadsheetContainer>
       <Heading marginBottom="2rem">Spreadsheet</Heading>
@@ -77,8 +84,9 @@ const Spreadsheet: React.FC = () => {
                   value={cellValue}
                   rowIndex={rowIdx}
                   columnIndex={columnIdx}
-                  onCellClick={(rowIndex, columnIndex) => setActiveCell([rowIndex, columnIndex])}
+                  onCellClick={updateActiveCell}
                   onChange={activeCell !== null && activeCell[0] === rowIdx && activeCell[1] === columnIdx ? handleCellChange : undefined}
+                  onCellMove={updateActiveCell}
                   coerceToCurrency
                 />
               ))}

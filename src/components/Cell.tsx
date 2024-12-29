@@ -5,10 +5,13 @@ import React, { memo, useCallback, useRef } from 'react';
 interface Props {
   value: string;
   coerceToCurrency?: boolean;
+  onChange?: (rowIndex: number, columnIndex: number, newValue: string) => void;
+
+  // Active cell props
   rowIndex?: number;
   columnIndex?: number;
-  onCellClick?: (rowIndex: number, columnIndex: number) => void;
-  onChange?: (rowIndex: number, columnIndex: number, newValue: string) => void;
+  onCellClick?: (rowIndex: number, columnIndex: number) => void;  // Which cell was clicked
+  onCellMove?: (rowIndex: number, columnIndex: number) => void;   // Which cell to move to when arrow keys are pressed
 }
 
 const CellInput = styled(Input)`
@@ -47,6 +50,7 @@ const Cell: React.FC<Props> = memo<Props>(({
   columnIndex,
   onChange,
   onCellClick,
+  onCellMove,
   coerceToCurrency = false,
 }) => {
   const onChangeHandler = useCallback<React.ChangeEventHandler<HTMLInputElement>>(
@@ -62,11 +66,30 @@ const Cell: React.FC<Props> = memo<Props>(({
     }
   }, [rowIndex, columnIndex])
 
+  const translateCellMove = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (onCellMove) {
+      switch (e.key) {
+        case 'ArrowRight':
+          onCellMove(rowIndex, columnIndex + 1)
+          break;
+        case 'ArrowLeft':
+          onCellMove(rowIndex, columnIndex - 1)
+          break;
+        case 'ArrowDown':
+          onCellMove(rowIndex + 1, columnIndex)
+          break;
+        case 'ArrowUp':
+          onCellMove(rowIndex - 1, columnIndex)
+          break;
+      }
+    }
+  }, [rowIndex, columnIndex])
+
   return (
     <Box onClick={handleContainerClick}>
       {
-        onChange ? (
-          <CellInput value={value} width="full" onChange={onChangeHandler} autoFocus />
+        onChange && onCellMove ? (
+          <CellInput value={value} width="full" onChange={onChangeHandler} onKeyDown={translateCellMove} autoFocus />
         ) : (
           <CellValue width="full">{coerceToCurrency && isNumber(value) ? parseFloat(value).toLocaleString('en-US', {style: 'currency', currency: 'USD'}) : value}</CellValue>
         )
