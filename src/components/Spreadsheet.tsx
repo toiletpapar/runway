@@ -79,6 +79,7 @@ const Spreadsheet: React.FC = () => {
                   columnIndex={columnIdx}
                   onCellClick={(rowIndex, columnIndex) => setActiveCell([rowIndex, columnIndex])}
                   onChange={activeCell !== null && activeCell[0] === rowIdx && activeCell[1] === columnIdx ? handleCellChange : undefined}
+                  coerceToCurrency
                 />
               ))}
             </Flex>

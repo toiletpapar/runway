@@ -4,6 +4,7 @@ import React, { memo, useCallback, useRef } from 'react';
 
 interface Props {
   value: string;
+  coerceToCurrency?: boolean;
   rowIndex?: number;
   columnIndex?: number;
   onCellClick?: (rowIndex: number, columnIndex: number) => void;
@@ -30,7 +31,24 @@ const CellValue = styled(Box)`
   border-radius: 0px;
 `
 
-const Cell: React.FC<Props> = memo<Props>(({ value, rowIndex, columnIndex, onChange, onCellClick }) => {
+function isNumber(str) {
+  if (typeof str !== 'string') {
+    return false; // Input must be a string
+  }
+
+  // Use a regular expression to check for valid number formats
+  const regex = /^-?\d+(\.\d+)?$/; 
+  return regex.test(str);
+}
+
+const Cell: React.FC<Props> = memo<Props>(({
+  value,
+  rowIndex,
+  columnIndex,
+  onChange,
+  onCellClick,
+  coerceToCurrency = false,
+}) => {
   const onChangeHandler = useCallback<React.ChangeEventHandler<HTMLInputElement>>(
     (ev) => {
       onChange(rowIndex, columnIndex, ev.target.value);
@@ -50,7 +68,7 @@ const Cell: React.FC<Props> = memo<Props>(({ value, rowIndex, columnIndex, onCha
         onChange ? (
           <CellInput value={value} width="full" onChange={onChangeHandler} autoFocus />
         ) : (
-          <CellValue width="full">{value}</CellValue>
+          <CellValue width="full">{coerceToCurrency && isNumber(value) ? parseFloat(value).toLocaleString('en-US', {style: 'currency', currency: 'USD'}) : value}</CellValue>
         )
       }
     </Box>
