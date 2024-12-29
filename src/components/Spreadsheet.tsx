@@ -30,6 +30,21 @@ const SpreadsheetButton = styled(Button)`
   margin: 4px;
 `
 
+const ColumnLabelContainer = styled(Flex)`
+  position: sticky;
+  top: 0px;
+`
+
+const ColumnLabel = styled(Cell)`
+  background-color: #F0F0F0;
+`
+
+const RowLabel = styled(Cell)`
+  position: sticky;
+  left: 0px;
+  background-color: #F0F0F0;
+`
+
 const columnToLetter = (columnIndex: number) => {
   let columnLabel = "";
   while (columnIndex >= 0) {
@@ -75,19 +90,19 @@ const Spreadsheet: React.FC = () => {
     <SpreadsheetContainer>
       <Heading marginBottom="2rem">Spreadsheet</Heading>
       <Sheet width="full">
-        <Flex>
-          <Cell value="" />
+        <ColumnLabelContainer>
+          <ColumnLabel value="" />
           {Array.from({length: NUM_COLUMNS}).fill(1).map((value, columnIdx) => (
-            <Cell
+            <ColumnLabel
               key={`clabel-${columnIdx}`}
               value={columnToLetter(columnIdx)}
             />
           ))}
-        </Flex>
+        </ColumnLabelContainer>
         {spreadsheetState.map((row, rowIdx) => {
           return (
             <Flex key={String(rowIdx)}>
-              <Cell key={`rlabel-${rowIdx}`} value={(rowIdx + 1).toString()} />
+              <RowLabel key={`rlabel-${rowIdx}`} value={(rowIdx + 1).toString()} />
               {row.map((cellValue, columnIdx) => (
                 <Cell
                   key={`${rowIdx}/${columnIdx}`}

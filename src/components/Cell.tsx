@@ -6,6 +6,7 @@ interface Props {
   value: string;
   coerceToCurrency?: boolean;
   onChange?: (rowIndex: number, columnIndex: number, newValue: string) => void;
+  className?: string;
 
   // Active cell props
   rowIndex?: number;
@@ -52,6 +53,7 @@ const Cell: React.FC<Props> = memo<Props>(({
   onCellClick,
   onCellMove,
   coerceToCurrency = false,
+  className,
 }) => {
   const onChangeHandler = useCallback<React.ChangeEventHandler<HTMLInputElement>>(
     (ev) => {
@@ -64,7 +66,7 @@ const Cell: React.FC<Props> = memo<Props>(({
     if (onCellClick) {
       onCellClick(rowIndex, columnIndex)
     }
-  }, [rowIndex, columnIndex])
+  }, [onCellClick, rowIndex, columnIndex])
 
   const translateCellMove = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (onCellMove) {
@@ -83,10 +85,10 @@ const Cell: React.FC<Props> = memo<Props>(({
           break;
       }
     }
-  }, [rowIndex, columnIndex])
+  }, [onCellMove, rowIndex, columnIndex])
 
   return (
-    <Box onClick={handleContainerClick}>
+    <Box onClick={handleContainerClick} className={className}>
       {
         onChange && onCellMove ? (
           <CellInput value={value} width="full" onChange={onChangeHandler} onKeyDown={translateCellMove} autoFocus />
